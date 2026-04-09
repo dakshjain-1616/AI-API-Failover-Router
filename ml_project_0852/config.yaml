@@ -1,0 +1,91 @@
+# AI API Failover Router Configuration
+
+providers:
+  ollama:
+    name: "ollama"
+    type: "ollama"
+    base_url: "http://localhost:11434"
+    model: "llama3"
+    timeout: 30.0
+    max_retries: 3
+    cost_per_token: 0.0
+    priority: 1
+    enabled: true
+
+  openai:
+    name: "openai"
+    type: "openai"
+    base_url: "https://api.openai.com/v1"
+    api_key: "sk-your-api-key"
+    model: "gpt-3.5-turbo"
+    timeout: 30.0
+    max_retries: 3
+    cost_per_token: 0.000001
+    priority: 2
+    enabled: true
+
+  anthropic:
+    name: "anthropic"
+    type: "anthropic"
+    base_url: "https://api.anthropic.com/v1"
+    api_key: "sk-ant-your-api-key"
+    model: "claude-3-haiku-20240307"
+    timeout: 30.0
+    max_retries: 3
+    cost_per_token: 0.00000025
+    priority: 3
+    enabled: true
+
+  deepseek:
+    name: "deepseek"
+    type: "deepseek"
+    base_url: "https://api.deepseek.com/v1"
+    api_key: "sk-ds-your-api-key"
+    model: "deepseek-chat"
+    timeout: 30.0
+    max_retries: 3
+    cost_per_token: 0.00000014
+    priority: 4
+    enabled: true
+
+  generic:
+    name: "generic"
+    type: "generic"
+    base_url: "https://api.example.com/v1"
+    api_key: "your-api-key"
+    model: "model-name"
+    timeout: 30.0
+    max_retries: 3
+    cost_per_token: 0.0
+    priority: 5
+    enabled: false
+
+health_check:
+  interval: 60.0
+  timeout: 10.0
+  failure_threshold: 3
+  recovery_timeout: 30.0
+  success_threshold: 2
+
+metrics:
+  enabled: true
+  rolling_window_size: 1000
+  latency_buckets: [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+  prometheus_port: 9090
+
+routing:
+  strategy: "priority"
+  fallback_chain: ["ollama", "openai", "anthropic", "deepseek", "generic"]
+  cost_threshold: 1.0
+  latency_threshold: 5.0
+  default_timeout: 30.0
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  log_level: "info"
+  cors_origins: ["*"]
+  auth_enabled: false
+  auth_header: "Authorization"
+  rate_limit_requests: 100
+  rate_limit_window: 60

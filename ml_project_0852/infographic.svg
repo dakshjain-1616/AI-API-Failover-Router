@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 420" width="860" height="420">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#001a0d"/>
+    <stop offset="100%" stop-color="#000f1a"/>
+  </linearGradient>
+  <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#10b981"/>
+    <stop offset="100%" stop-color="#06b6d4"/>
+  </linearGradient>
+  <marker id="arrG" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#10b981"/>
+  </marker>
+  <marker id="arrR" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#ef4444"/>
+  </marker>
+</defs>
+<rect width="860" height="420" rx="18" fill="url(#bg)"/>
+<rect width="860" height="420" rx="18" fill="none" stroke="rgba(16,185,129,0.25)" stroke-width="1.5"/>
+<line x1="0" y1="60" x2="860" y2="60" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+<!-- header -->
+<rect width="860" height="60" rx="18" fill="url(#hdr)" opacity="0.12"/>
+<rect y="44" width="860" height="16" fill="url(#hdr)" opacity="0.12"/>
+<circle cx="30" cy="30" r="14" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.5)" stroke-width="1.5"/>
+<text x="30" y="35" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="16" fill="#10b981">🔀</text>
+<text x="54" y="38" font-family="-apple-system,system-ui,sans-serif" font-size="19" font-weight="700" fill="white">AI API Failover Router</text>
+<rect x="440" y="15" width="220" height="24" rx="12" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.35)" stroke-width="1"/>
+<text x="550" y="31" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#6ee7b7">Zero-downtime multi-provider routing</text>
+
+<!-- ── Your App ── -->
+<rect x="16" y="80" width="124" height="80" rx="12" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.3)" stroke-width="1.5"/>
+<text x="78" y="104" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="600" fill="#34d399">Your App</text>
+<text x="78" y="124" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="22">💻</text>
+<text x="78" y="149" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" fill="#6b7280">OpenAI-compatible</text>
+<line x1="140" y1="120" x2="176" y2="120" stroke="#10b981" stroke-width="2" marker-end="url(#arrG)" stroke-dasharray="4 2"/>
+
+<!-- ── Router ── -->
+<rect x="177" y="68" width="194" height="250" rx="12" fill="rgba(16,185,129,0.07)" stroke="rgba(16,185,129,0.35)" stroke-width="2"/>
+<text x="274" y="92" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="14" font-weight="700" fill="#34d399">Router</text>
+<text x="274" y="110" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" fill="#4b5563">localhost:8080/v1/chat/completions</text>
+
+<text x="196" y="132" font-family="-apple-system,system-ui,sans-serif" font-size="11" font-weight="600" fill="#9ca3af">Strategy</text>
+<rect x="196" y="138" width="88" height="22" rx="6" fill="rgba(34,197,94,0.15)" stroke="rgba(34,197,94,0.4)" stroke-width="1"/>
+<text x="240" y="153" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" font-weight="600" fill="#86efac">PRIORITY</text>
+<rect x="292" y="138" width="72" height="22" rx="6" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+<text x="328" y="153" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#34d399">COST</text>
+<rect x="196" y="166" width="88" height="22" rx="6" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+<text x="240" y="181" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#34d399">LATENCY</text>
+<rect x="292" y="166" width="72" height="22" rx="6" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+<text x="328" y="181" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#34d399">HEALTH</text>
+
+<line x1="196" y1="202" x2="356" y2="202" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+<text x="274" y="222" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" font-weight="600" fill="#9ca3af">Circuit Breaker States</text>
+<rect x="196" y="230" width="60" height="22" rx="6" fill="rgba(34,197,94,0.2)" stroke="rgba(34,197,94,0.5)" stroke-width="1"/>
+<text x="226" y="245" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" font-weight="600" fill="#86efac">CLOSED</text>
+<text x="266" y="245" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#4b5563">→</text>
+<rect x="274" y="230" width="50" height="22" rx="6" fill="rgba(239,68,68,0.2)" stroke="rgba(239,68,68,0.5)" stroke-width="1"/>
+<text x="299" y="245" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" font-weight="600" fill="#fca5a5">OPEN</text>
+<text x="330" y="245" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#4b5563">→</text>
+<text x="274" y="272" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" fill="#6b7280">3 failures → skip 60s → probe</text>
+<rect x="196" y="280" width="60" height="22" rx="6" fill="rgba(234,179,8,0.15)" stroke="rgba(234,179,8,0.35)" stroke-width="1"/>
+<text x="226" y="295" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" font-weight="600" fill="#fde68a">HALF_OPEN</text>
+<text x="300" y="295" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#9ca3af">→ auto-recover</text>
+
+<!-- arrows router → providers -->
+<line x1="371" y1="118" x2="406" y2="118" stroke="#10b981" stroke-width="2" marker-end="url(#arrG)"/>
+<line x1="371" y1="168" x2="406" y2="168" stroke="#10b981" stroke-width="2" marker-end="url(#arrG)"/>
+<line x1="371" y1="218" x2="406" y2="218" stroke="#ef4444" stroke-width="2" marker-end="url(#arrR)" stroke-dasharray="5 3"/>
+<line x1="371" y1="268" x2="406" y2="268" stroke="#10b981" stroke-width="2" marker-end="url(#arrG)"/>
+
+<!-- ── Providers ── -->
+<!-- Ollama -->
+<rect x="407" y="98" width="180" height="40" rx="10" fill="rgba(34,197,94,0.1)" stroke="rgba(34,197,94,0.4)" stroke-width="1.5"/>
+<text x="437" y="122" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="600" fill="#4ade80">🖥 Ollama</text>
+<text x="560" y="118" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" fill="#6b7280">local · free</text>
+<rect x="595" y="106" width="56" height="22" rx="6" fill="rgba(34,197,94,0.2)" stroke="rgba(34,197,94,0.5)" stroke-width="1"/>
+<text x="623" y="121" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" font-weight="700" fill="#86efac">CLOSED</text>
+
+<!-- OpenAI -->
+<rect x="407" y="148" width="180" height="40" rx="10" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)" stroke-width="1.5"/>
+<text x="437" y="172" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="600" fill="#34d399">✦ OpenAI</text>
+<text x="560" y="168" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" fill="#6b7280">GPT-4o</text>
+<rect x="595" y="156" width="56" height="22" rx="6" fill="rgba(34,197,94,0.2)" stroke="rgba(34,197,94,0.5)" stroke-width="1"/>
+<text x="623" y="171" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" font-weight="700" fill="#86efac">CLOSED</text>
+
+<!-- Anthropic -->
+<rect x="407" y="198" width="180" height="40" rx="10" fill="rgba(239,68,68,0.07)" stroke="rgba(239,68,68,0.3)" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="437" y="222" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="600" fill="#f87171">☁ Anthropic</text>
+<text x="557" y="218" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" fill="#6b7280">Claude</text>
+<rect x="595" y="206" width="56" height="22" rx="6" fill="rgba(239,68,68,0.2)" stroke="rgba(239,68,68,0.5)" stroke-width="1"/>
+<text x="623" y="221" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" font-weight="700" fill="#fca5a5">OPEN</text>
+
+<!-- DeepSeek -->
+<rect x="407" y="248" width="180" height="40" rx="10" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)" stroke-width="1.5"/>
+<text x="437" y="272" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="600" fill="#34d399">◈ DeepSeek</text>
+<text x="560" y="268" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" fill="#6b7280">cheap</text>
+<rect x="595" y="256" width="56" height="22" rx="6" fill="rgba(34,197,94,0.2)" stroke="rgba(34,197,94,0.5)" stroke-width="1"/>
+<text x="623" y="271" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="10" font-weight="700" fill="#86efac">CLOSED</text>
+
+<!-- ── API / Metrics ── -->
+<rect x="407" y="305" width="180" height="28" rx="8" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.25)" stroke-width="1"/>
+<text x="497" y="323" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#6ee7b7">GET /metrics  GET /health  GET /stats</text>
+
+<!-- ── Prometheus ── -->
+<rect x="603" y="68" width="242" height="270" rx="12" fill="rgba(6,182,212,0.05)" stroke="rgba(6,182,212,0.2)" stroke-width="1.5"/>
+<text x="724" y="92" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="13" font-weight="600" fill="#22d3ee">Prometheus Metrics</text>
+<text x="624" y="115" font-family="monospace,sans-serif" font-size="11" fill="#4b5563">router_total_requests</text>
+<text x="624" y="135" font-family="monospace,sans-serif" font-size="11" fill="#4b5563">router_total_failovers</text>
+<text x="624" y="155" font-family="monospace,sans-serif" font-size="11" fill="#4b5563">router_provider_requests</text>
+<text x="624" y="175" font-family="monospace,sans-serif" font-size="11" fill="#4b5563">router_latency_p95</text>
+<text x="624" y="195" font-family="monospace,sans-serif" font-size="11" fill="#4b5563">router_cost_total</text>
+<text x="624" y="215" font-family="monospace,sans-serif" font-size="11" fill="#4b5563">router_failures_total</text>
+<line x1="614" y1="228" x2="834" y2="228" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+<text x="724" y="250" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#9ca3af">55 tests · pytest-asyncio</text>
+<text x="724" y="268" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#9ca3af">respx HTTP mocking</text>
+<text x="724" y="286" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#9ca3af">no live server required</text>
+<rect x="624" y="300" width="86" height="22" rx="6" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+<text x="667" y="315" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#6ee7b7">FastAPI app</text>
+<rect x="720" y="300" width="104" height="22" rx="6" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.3)" stroke-width="1"/>
+<text x="772" y="315" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="11" fill="#67e8f9">config.yaml driven</text>
+
+<!-- bottom stats -->
+<rect x="16" y="348" width="828" height="58" rx="10" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+<text x="432" y="368" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="12" font-weight="600" fill="white">How it works</text>
+<text x="432" y="390" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="12" fill="#6b7280">Your app talks to localhost:8080 · Router picks healthy provider · On failure, breaker opens · Traffic shifts automatically</text>
+</svg>
