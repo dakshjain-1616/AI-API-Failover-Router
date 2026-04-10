@@ -83,8 +83,8 @@ providers:
     type: "openai"
     base_url: "https://api.openai.com/v1"
     api_key: "sk-your-openai-key"
-    model: "gpt-3.5-turbo"
-    cost_per_token: 0.000001
+    model: "gpt-5.4-mini"
+    cost_per_token: 0.0000025
     priority: 2
     enabled: true
 
@@ -93,14 +93,24 @@ providers:
     type: "anthropic"
     base_url: "https://api.anthropic.com/v1"
     api_key: "sk-ant-your-anthropic-key"
-    model: "claude-3-haiku-20240307"
-    cost_per_token: 0.00000025
+    model: "claude-haiku-4-5-20251001"
+    cost_per_token: 0.000001
     priority: 3
+    enabled: true
+
+  deepseek:
+    name: "deepseek"
+    type: "deepseek"
+    base_url: "https://api.deepseek.com/v1"
+    api_key: "sk-your-deepseek-key"
+    model: "deepseek-chat"
+    cost_per_token: 0.00000014
+    priority: 4
     enabled: true
 
 routing:
   strategy: "priority"           # priority | cost | latency | health
-  fallback_chain: ["ollama", "openai", "anthropic"]
+  fallback_chain: ["ollama", "openai", "anthropic", "deepseek"]
   cost_threshold: 1.0            # max USD per request
   latency_threshold: 5.0         # max seconds
 
@@ -155,7 +165,7 @@ curl -X POST http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{"role": "user", "content": "Hello, how are you?"}],
-    "model": "gpt-3.5-turbo",
+    "model": "gpt-5.4-mini",
     "temperature": 0.7
   }'
 ```
@@ -167,7 +177,7 @@ curl -X POST http://localhost:8000/v1/chat/completions \
     "id": "chatcmpl-1744123456",
     "object": "chat.completion",
     "created": 1744123456,
-    "model": "gpt-3.5-turbo",
+    "model": "gpt-5.4-mini",
     "choices": [
         {
             "index": 0,
@@ -196,7 +206,7 @@ curl -X POST http://localhost:8000/v1/completions \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "The capital of France is",
-    "model": "gpt-3.5-turbo",
+    "model": "gpt-5.4-mini",
     "max_tokens": 10
   }'
 ```
@@ -208,7 +218,7 @@ curl -X POST http://localhost:8000/v1/completions \
     "id": "cmpl-1744123456",
     "object": "text_completion",
     "created": 1744123456,
-    "model": "gpt-3.5-turbo",
+    "model": "gpt-5.4-mini",
     "choices": [
         {
             "text": " Paris.",
@@ -236,7 +246,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
+    model="gpt-5.4-mini",
     messages=[{"role": "user", "content": "Explain circuit breakers in one sentence."}]
 )
 
@@ -609,7 +619,7 @@ curl http://localhost:8000/admin/metrics/openai
 # Missing messages field → 400
 curl -X POST http://localhost:8000/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -d '{"model": "gpt-4"}'
+  -d '{"model": "gpt-5.4"}'
 ```
 ```json
 {"detail": "Messages required"}
@@ -631,7 +641,7 @@ HTTP 503.
 # Missing prompt in /v1/completions → 400
 curl -X POST http://localhost:8000/v1/completions \
   -H "Content-Type: application/json" \
-  -d '{"model": "gpt-4"}'
+  -d '{"model": "gpt-5.4"}'
 ```
 ```json
 {"detail": "Prompt required"}
@@ -684,9 +694,9 @@ All thresholds are configurable in `config.yaml` under `health_check`.
 | Provider | Type | Auth | Default model |
 |----------|------|------|---------------|
 | Ollama | Local inference | None required | `llama3` |
-| OpenAI | GPT-4o, GPT-4, GPT-3.5 | `api_key` in config | `gpt-3.5-turbo` |
-| Anthropic | Claude 3.x / Claude 4.x | `api_key` in config | `claude-3-haiku-20240307` |
-| DeepSeek | DeepSeek-V3 | `api_key` in config | `deepseek-chat` |
+| OpenAI | GPT-5.4, GPT-5.4-mini, GPT-5.4-nano | `api_key` in config | `gpt-5.4-mini` |
+| Anthropic | Claude Opus 4.6, Sonnet 4.6, Haiku 4.5 | `api_key` in config | `claude-haiku-4-5-20251001` |
+| DeepSeek | DeepSeek-V3.2 (chat + reasoner) | `api_key` in config | `deepseek-chat` |
 | Generic | Any OpenAI-compatible API | Optional `api_key` | configurable |
 
 ---
