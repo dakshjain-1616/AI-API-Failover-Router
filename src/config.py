@@ -5,12 +5,14 @@ Loads configuration from YAML file using Pydantic for validation.
 
 import os
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import yaml
 
 
 class ProviderConfig(BaseModel):
     """Configuration for a single LLM provider."""
+    model_config = ConfigDict(extra='allow')
+
     name: str
     type: str  # ollama, openai, anthropic, deepseek, generic
     base_url: str
@@ -21,9 +23,6 @@ class ProviderConfig(BaseModel):
     cost_per_token: float = Field(default=0.0, description="Cost per token in USD")
     priority: int = Field(default=1, description="Provider priority (lower = higher priority)")
     enabled: bool = Field(default=True, description="Whether provider is enabled")
-    
-    class Config:
-        extra = 'allow'
 
 
 class HealthCheckConfig(BaseModel):

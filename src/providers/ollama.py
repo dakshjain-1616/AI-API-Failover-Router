@@ -55,8 +55,9 @@ class OllamaProvider(BaseProvider):
                     timeout=aiohttp.ClientTimeout(total=self.timeout)
                 ) as response:
                     if response.status != 200:
+                        error_text = await response.text()
                         raise ProviderError(
-                            f"HTTP {response.status}: {response.text()}",
+                            f"HTTP {response.status}: {error_text}",
                             self.name,
                             response.status
                         )
@@ -74,13 +75,15 @@ class OllamaProvider(BaseProvider):
     async def health_check(self) -> HealthStatus:
         """Check if Ollama is running and responsive."""
         try:
+            start_time = time.time()
             async with aiohttp.ClientSession() as session:
                 async with session.get(
                     f"{self.base_url}/api/version",
                     timeout=aiohttp.ClientTimeout(total=5.0)
                 ) as response:
+                    latency_ms = (time.time() - start_time) * 1000
                     if response.status == 200:
-                        return HealthStatus(healthy=True, latency_ms=response.latency_ms * 1000)
+                        return HealthStatus(healthy=True, latency_ms=latency_ms)
                     else:
                         return HealthStatus(
                             healthy=False,

@@ -4,12 +4,13 @@ Provides endpoints for chat completions, health, metrics, and admin operations.
 """
 
 import asyncio
+import os
 import time
 from typing import Dict, List, Optional, Any
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, HTTPException, Header
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_config, AppConfig
@@ -19,7 +20,7 @@ from .providers import (
     DeepSeekProvider, GenericProvider
 )
 from .router import Router, RoutingStrategy
-from .health import CircuitBreaker, HealthChecker, CircuitState
+from .health import CircuitBreaker, HealthChecker, CircuitState, get_health_report
 from .metrics import MetricsCollector
 from .middleware import create_middleware_stack
 
@@ -115,9 +116,10 @@ def create_app(config_path: str = "config.yaml") -> FastAPI:
         check_timeout=config.health_check.timeout
     )
     
-    # Register providers with health checker
+    # Register enabled providers with health checker
     for name, provider in providers.items():
-        health_checker.register_provider(name, provider)
+        if provider.enabled:
+            health_checker.register_provider(name, provider)
     
     # Apply middleware using FastAPI's built-in support
     # Request logging
@@ -147,10 +149,10 @@ def create_app(config_path: str = "config.yaml") -> FastAPI:
     @asynccontextmanager
     async def lifespan(app):
         # Start health checker on startup
-        asyncio.create_task(health_checker.run())
+        await health_checker.start_background_checker()
         yield
         # Cleanup on shutdown
-        health_checker.stop()
+        await health_checker.stop_background_checker()
     
     app.router.lifespan_context = lifespan
     
@@ -180,20 +182,30 @@ def register_endpoints(app: FastAPI):
             # Parse request body
             body = await request.json()
             messages = body.get("messages", [])
-            
+
             if not messages:
                 raise HTTPException(status_code=400, detail="Messages required")
-            
+
+            # Resolve params: body values take precedence over query-param defaults
+            _model = model or body.get("model")
+            _temperature = body.get("temperature", temperature)
+            _max_tokens = body.get("max_tokens", max_tokens)
+            _stream = body.get("stream", stream)
+
+            # Exclude already-handled keys from extra kwargs
+            _skip = {"messages", "model", "temperature", "max_tokens", "stream"}
+            _extra = {k: v for k, v in body.items() if k not in _skip}
+
             # Execute with failover
             response, provider_name = await router.execute_with_failover(
                 messages=messages,
-                model=model or body.get("model"),
-                temperature=temperature,
-                max_tokens=max_tokens or body.get("max_tokens"),
-                stream=stream,
-                **{k: v for k, v in body.items() if k not in ["messages", "model", "max_tokens"]}
+                model=_model,
+                temperature=_temperature,
+                max_tokens=_max_tokens,
+                stream=_stream,
+                **_extra
             )
-            
+
             # Format response
             return {
                 "id": f"chatcmpl-{int(time.time())}",
@@ -213,7 +225,9 @@ def register_endpoints(app: FastAPI):
                 "usage": response.usage,
                 "x_provider": provider_name
             }
-        
+
+        except HTTPException:
+            raise
         except ProviderError as e:
             raise HTTPException(status_code=503, detail=str(e))
         except Exception as e:
@@ -235,21 +249,27 @@ def register_endpoints(app: FastAPI):
         try:
             body = await request.json()
             prompt = body.get("prompt", "")
-            
+
             if not prompt:
                 raise HTTPException(status_code=400, detail="Prompt required")
-            
+
             # Convert prompt to message format
             messages = [{"role": "user", "content": prompt}]
-            
+
+            # Resolve params: body values take precedence over query-param defaults
+            _model = model or body.get("model")
+            _temperature = body.get("temperature", temperature)
+            _max_tokens = body.get("max_tokens", max_tokens)
+            _stream = body.get("stream", stream)
+
             response, provider_name = await router.execute_with_failover(
                 messages=messages,
-                model=model or body.get("model"),
-                temperature=temperature,
-                max_tokens=max_tokens or body.get("max_tokens"),
-                stream=stream
+                model=_model,
+                temperature=_temperature,
+                max_tokens=_max_tokens,
+                stream=_stream
             )
-            
+
             return {
                 "id": f"cmpl-{int(time.time())}",
                 "object": "text_completion",
@@ -264,7 +284,9 @@ def register_endpoints(app: FastAPI):
                 ],
                 "usage": response.usage
             }
-        
+
+        except HTTPException:
+            raise
         except ProviderError as e:
             raise HTTPException(status_code=503, detail=str(e))
         except Exception as e:
@@ -274,47 +296,41 @@ def register_endpoints(app: FastAPI):
     async def health():
         """
         Health check endpoint.
-        
+
         Returns current health status of all providers.
         """
-        report = health_checker.get_health_report()
-        
+        report = get_health_report(circuit_breaker, health_checker)
+        healthy_count = sum(1 for p in report.providers.values() if p["healthy"])
+        unhealthy_count = len(report.providers) - healthy_count
+
         return {
-            "status": "healthy" if report["healthy_count"] > 0 else "unhealthy",
-            "providers": report["providers"],
-            "healthy_count": report["healthy_count"],
-            "unhealthy_count": report["unhealthy_count"],
-            "last_check": report["last_check"]
+            "status": "healthy" if healthy_count > 0 else "unhealthy",
+            "providers": report.providers,
+            "healthy_count": healthy_count,
+            "unhealthy_count": unhealthy_count,
+            "last_check": report.timestamp
         }
     
     @app.get("/metrics")
     async def metrics_endpoint():
         """
         Prometheus metrics endpoint.
-        
+
         Returns metrics in Prometheus exposition format.
         """
-        return metrics.export_prometheus()
+        return PlainTextResponse(
+            metrics.export_prometheus(),
+            media_type="text/plain; version=0.0.4; charset=utf-8"
+        )
     
     @app.get("/stats")
     async def stats():
         """
         Statistics endpoint.
-        
+
         Returns aggregated statistics about router performance.
         """
-        return {
-            "total_requests": metrics.total_requests,
-            "total_failovers": metrics.total_failovers,
-            "total_tokens": metrics.total_tokens,
-            "total_cost": metrics.total_cost,
-            "latency": {
-                "p50": metrics.latency_p50,
-                "p95": metrics.latency_p95,
-                "p99": metrics.latency_p99
-            },
-            "provider_stats": metrics.get_all_provider_stats()
-        }
+        return metrics.get_all_stats()
     
     @app.get("/admin/providers")
     async def admin_providers():
@@ -343,7 +359,7 @@ def register_endpoints(app: FastAPI):
             raise HTTPException(status_code=404, detail=f"Provider '{provider_name}' not found")
         
         state = circuit_breaker.get_state(provider_name)
-        failures = circuit_breaker.failure_counts.get(provider_name, 0)
+        failures = circuit_breaker.get_or_create_health(provider_name).failure_count
         
         return {
             "provider": provider_name,
@@ -380,7 +396,10 @@ def register_endpoints(app: FastAPI):
 
 
 # Create app instance
-app = create_app("/app/ml_project_0852/config.yaml")
+_config_path = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config.yaml')
+)
+app = create_app(_config_path)
 
 
 if __name__ == "__main__":

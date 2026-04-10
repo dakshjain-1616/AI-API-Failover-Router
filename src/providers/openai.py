@@ -78,18 +78,20 @@ class OpenAIProvider(BaseProvider):
     async def health_check(self) -> HealthStatus:
         """Check if OpenAI API is responsive."""
         try:
+            start_time = time.time()
             async with aiohttp.ClientSession() as session:
                 headers = {}
                 if self.api_key:
                     headers["Authorization"] = f"Bearer {self.api_key}"
-                
+
                 async with session.get(
                     f"{self.base_url}/models",
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=5.0)
                 ) as response:
+                    latency_ms = (time.time() - start_time) * 1000
                     if response.status == 200:
-                        return HealthStatus(healthy=True, latency_ms=response.latency_ms * 1000 if hasattr(response, 'latency_ms') else 0.0)
+                        return HealthStatus(healthy=True, latency_ms=latency_ms)
                     else:
                         return HealthStatus(
                             healthy=False,

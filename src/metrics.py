@@ -178,15 +178,16 @@ class MetricsCollector:
         
         latency_stats = self.provider_latency[provider_name].get_stats()
         
+        total_requests = sum(1 for r in self.requests if r.provider_name == provider_name)
         return {
             "provider": provider_name,
-            "total_requests": sum(1 for r in self.requests if r.provider_name == provider_name),
+            "total_requests": total_requests,
             "latency": latency_stats,
             "tokens": self.provider_tokens[provider_name],
             "cost_usd": self.provider_cost[provider_name],
             "failures": self.provider_failures[provider_name],
             "failovers": self.provider_failovers[provider_name],
-            "success_rate": 1.0 - (self.provider_failures[provider_name] / max(1, self.provider_tokens[provider_name]["total"]))
+            "success_rate": 1.0 - (self.provider_failures[provider_name] / max(1, total_requests))
         }
     
     def get_all_stats(self) -> Dict[str, Any]:

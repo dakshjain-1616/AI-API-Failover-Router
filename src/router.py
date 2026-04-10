@@ -94,7 +94,8 @@ class Router:
             available.append(name)
         
         if not available:
-            return list(self.providers.keys())  # Return all if none available
+            # Last resort: try all enabled providers even with open circuits
+            return [n for n in self.providers if self.providers[n].enabled]
         
         # Sort by strategy
         if self.strategy == RoutingStrategy.PRIORITY:
@@ -162,16 +163,20 @@ class Router:
         
         for provider_name in ordered:
             provider = self.providers[provider_name]
-            
+
+            # Skip disabled providers
+            if not provider.enabled:
+                continue
+
             # Check if we can execute
             if not self.circuit_breaker.can_execute(provider_name):
                 continue
-            
+
             try:
                 # Execute with timeout
                 start_time = time.time()
-                
-                response = await asyncio.create_task(
+
+                response = await asyncio.wait_for(
                     provider.complete(
                         messages=messages,
                         model=model,
@@ -276,7 +281,7 @@ class Router:
         start_time = time.time()
         
         try:
-            response = await asyncio.create_task(
+            response = await asyncio.wait_for(
                 provider.complete(
                     messages=messages,
                     model=model,

@@ -264,15 +264,18 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
         
         # Collect request body
         body = b""
-        async for message in receive:
+        while True:
+            message = await receive()
             if message["type"] == "http.request":
                 body += message.get("body", b"")
                 if not message.get("more_body", False):
                     break
-        
+            elif message["type"] == "http.disconnect":
+                break
+
         # Compute cache key
         cache_key = self._compute_cache_key(idempotency_key, body)
-        
+
         # Check cache
         cached = self._get_cached(cache_key)
         if cached:
@@ -284,11 +287,18 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
             )
             await response(scope, receive, send)
             return
-        
-        # Process request normally
-        # Note: For full idempotency, we'd need to intercept the response
-        # This simplified version just tracks the key
-        await self.app(scope, receive, send)
+
+        # Replay the body so downstream handlers can read it
+        body_sent = False
+
+        async def replay_receive():
+            nonlocal body_sent
+            if not body_sent:
+                body_sent = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            return await receive()
+
+        await self.app(scope, replay_receive, send)
 
 
 def create_middleware_stack(
