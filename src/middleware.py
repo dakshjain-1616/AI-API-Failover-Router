@@ -298,7 +298,27 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
                 return {"type": "http.request", "body": body, "more_body": False}
             return await receive()
 
-        await self.app(scope, replay_receive, send)
+        # Capture the response so we can cache it
+        response_status = None
+        response_body = b""
+
+        async def capture_send(message):
+            nonlocal response_status, response_body
+            if message["type"] == "http.response.start":
+                response_status = message["status"]
+            elif message["type"] == "http.response.body":
+                response_body += message.get("body", b"")
+            await send(message)
+
+        await self.app(scope, replay_receive, capture_send)
+
+        # Cache successful responses only
+        if response_status is not None and 200 <= response_status < 300:
+            import json
+            try:
+                self._cache_response(cache_key, json.loads(response_body))
+            except (json.JSONDecodeError, Exception):
+                pass
 
 
 def create_middleware_stack(
